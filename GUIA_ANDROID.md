@@ -2,8 +2,8 @@
 
 ## Estado actual
 - **Backend:** funciona; los casos 201, 409 y 400 se probaron en Postman.
-- **Android:** la configuracion de Retrofit esta agregada, pero **no se ha confirmado que compile**
-  ni se ha probado la conexion desde el emulador.
+- **Android:** Retrofit y la pantalla de registro estan implementados, pero **aun no se ha compilado
+  ni probado en el emulador** (hacerlo con los pasos de abajo).
 
 Ya esta hecho en `RegistroUsuarios/`:
 - Dependencias de Retrofit, Gson y corrutinas en `app/build.gradle.kts`.
@@ -12,7 +12,12 @@ Ya esta hecho en `RegistroUsuarios/`:
 - URL base `http://10.0.2.2:8080/` (el PC visto desde el emulador).
 - Permiso `INTERNET` y `network_security_config.xml` (HTTP solo hacia `10.0.2.2`).
 
-## Pasos
+## Compilar sin Android Studio (GitHub Actions)
+El workflow `.github/workflows/android.yml` compila la app en cada push. En GitHub: pestana **Actions** >
+ultima ejecucion > si sale verde, la app compila. En **Artifacts** se descarga `registro-usuarios-debug-apk`
+(el APK, que se puede instalar en un celular; ver la nota de IP mas abajo).
+
+## Pasos (solo si se usa Android Studio)
 1. Clonar el repositorio: `git clone <URL-del-repositorio>`
 2. En Android Studio, **Open** y elegir la carpeta `RegistroUsuarios` (no la raiz del repositorio).
    `local.properties` se genera en cada computador y no se sube.
@@ -22,31 +27,25 @@ Ya esta hecho en `RegistroUsuarios/`:
 5. **Build > Assemble Project**. Resultado esperado: `BUILD SUCCESSFUL`.
    Si falla, revisar el primer error de la pestana **Build**.
 
-## Que pide la actividad en Android
-Las indicaciones piden el `data class RegistroRequest`, la interfaz `AuthApiService`,
-la URL base del emulador y el permiso de red. Esos archivos ya estan; falta compilarlos y
-mostrar la evidencia (captura de `BUILD SUCCESSFUL`, los archivos Kotlin y el manifest).
+## Pantalla de registro (ya implementada)
+Archivos en `RegistroUsuarios/app/src/main/java/com/ufps/registrousuarios/`:
+- `ui/registro/RegistroScreen.kt`: formulario Compose (nombre, correo, contrasena, boton "Crear Cuenta").
+- `ui/registro/RegistroViewModel.kt`: `RegistroState` (isLoading, error, erroresCampo, registroExitoso)
+  y la llamada dentro de `viewModelScope.launch`.
+- `data/RegistroRepository.kt`: llama a `RetrofitClient.authApiService.registrarUsuario(...)` y traduce
+  el resultado: 201 (exito), 400 (errores por campo), 409 (correo duplicado), sin conexion.
+- `data/remote/ErrorResponse.kt`: JSON de error del backend.
+- `MainActivity.kt` muestra `RegistroScreen`.
 
-## Registro desde la app (confirmar con el profesor si lo exige)
-La app todavia muestra la pantalla de ejemplo: **no hay formulario y no envia datos**.
-Las diapositivas de clase tambien muestran lo siguiente:
-1. `RegistroState` (isLoading, error, registroExitoso).
-2. `RegistroViewModel`: llama a `RetrofitClient.authApiService.registrarUsuario(...)`
-   dentro de `viewModelScope.launch`, con `try/catch` para fallos de conexion.
-   Mostrar mensajes distintos para 400 y 409.
-3. `RegistroScreen` en Compose: campos nombre, correo y contrasena, y boton "Crear Cuenta".
-4. Mostrar esa pantalla desde `MainActivity`.
-5. Si se usa `viewModel()` en Compose, agregar la dependencia
-   `androidx.lifecycle:lifecycle-viewmodel-compose`.
-
-Las diapositivas tambien mencionan Clean Architecture (capas Domain, Data y Presentacion).
-Confirmar si el profesor la exige.
+Flujo para explicar en clase: pantalla -> ViewModel -> Repository -> Retrofit (`POST api/auth/register`) -> backend.
 
 ## Probar la conexion
-Necesita la pantalla anterior (u otro codigo que llame al servicio).
 1. Encender PostgreSQL y el backend en **el mismo computador** del emulador (ver [README.md](README.md)).
 2. Ejecutar la app en un emulador.
-3. Registrar un correo nuevo (esperado: 201) y repetirlo (esperado: 409).
+3. Registrar un correo nuevo (esperado: 201, tarjeta con id, nombre y correo).
+4. Repetirlo (esperado: 409, mensaje de correo ya registrado).
+5. Probar correo invalido o contrasena corta (esperado: 400, error bajo cada campo).
+6. Apagar el backend y registrar (esperado: mensaje de "no se pudo conectar").
 
 En un celular fisico `10.0.2.2` no funciona: usar la IP local del PC en `RetrofitClient.kt`
 y en `network_security_config.xml`, con ambos equipos en la misma red.
