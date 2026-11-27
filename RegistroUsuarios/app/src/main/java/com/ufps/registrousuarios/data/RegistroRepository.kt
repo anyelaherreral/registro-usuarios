@@ -18,14 +18,21 @@ sealed interface ResultadoRegistro {
     data class ErrorServidor(val codigo: Int) : ResultadoRegistro
     /** El backend esta apagado o no hay red. */
     data object SinConexion : ResultadoRegistro
+    /** La direccion del servidor escrita en la app no es valida. */
+    data object ServidorInvalido : ResultadoRegistro
 }
 
 class RegistroRepository(
-    private val api: AuthApiService = RetrofitClient.authApiService,
+    private val apiFor: (String) -> AuthApiService = RetrofitClient::authApiService,
     private val gson: Gson = Gson()
 ) {
 
-    suspend fun registrar(request: RegistroRequest): ResultadoRegistro {
+    suspend fun registrar(baseUrl: String, request: RegistroRequest): ResultadoRegistro {
+        val api = try {
+            apiFor(baseUrl)
+        } catch (e: IllegalArgumentException) {
+            return ResultadoRegistro.ServidorInvalido
+        }
         val response = try {
             api.registrarUsuario(request)
         } catch (e: IOException) {

@@ -47,5 +47,7 @@ Flujo para explicar en clase: pantalla -> ViewModel -> Repository -> Retrofit (`
 5. Probar correo invalido o contrasena corta (esperado: 400, error bajo cada campo).
 6. Apagar el backend y registrar (esperado: mensaje de "no se pudo conectar").
 
-En un celular fisico `10.0.2.2` no funciona: usar la IP local del PC en `RetrofitClient.kt`
-y en `network_security_config.xml`, con ambos equipos en la misma red.
+En un celular fisico `10.0.2.2` no funciona. La app tiene un campo **Servidor** en la pantalla:
+escribir ahi la IP del PC que ejecuta el backend (por ejemplo `192.168.1.5`; el puerto 8080 se agrega solo).
+Ambos equipos deben estar en la misma red Wi-Fi y el firewall del PC debe permitir el puerto 8080.
+En el PC la IP se ve con `ipconfig` (Windows) o `ifconfig`/`ip a` (Mac/Linux).

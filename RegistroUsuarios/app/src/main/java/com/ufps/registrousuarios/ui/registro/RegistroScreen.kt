@@ -47,6 +47,7 @@ fun RegistroScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     RegistroContent(
         state = state,
+        onServidorChange = viewModel::onServidorChange,
         onNombreChange = viewModel::onNombreChange,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
@@ -59,6 +60,7 @@ fun RegistroScreen(
 @Composable
 fun RegistroContent(
     state: RegistroState,
+    onServidorChange: (String) -> Unit,
     onNombreChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -87,7 +89,7 @@ fun RegistroContent(
                 Text("Registrar otro usuario")
             }
         } else {
-            Formulario(state, onNombreChange, onEmailChange, onPasswordChange, onRegistrar)
+            Formulario(state, onServidorChange, onNombreChange, onEmailChange, onPasswordChange, onRegistrar)
         }
     }
 }
@@ -95,12 +97,24 @@ fun RegistroContent(
 @Composable
 private fun Formulario(
     state: RegistroState,
+    onServidorChange: (String) -> Unit,
     onNombreChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onRegistrar: () -> Unit
 ) {
     var verPassword by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = state.servidor,
+        onValueChange = onServidorChange,
+        label = { Text("Servidor (IP del backend)") },
+        supportingText = { Text("Emulador: 10.0.2.2 · Celular: IP del PC con el backend") },
+        singleLine = true,
+        enabled = !state.isLoading,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+        modifier = Modifier.fillMaxWidth()
+    )
 
     OutlinedTextField(
         value = state.nombre,
@@ -223,7 +237,7 @@ private fun FormularioPreview() {
                 email = "ana",
                 erroresCampo = mapOf("email" to "El email no tiene un formato valido")
             ),
-            onNombreChange = {}, onEmailChange = {}, onPasswordChange = {},
+            onServidorChange = {}, onNombreChange = {}, onEmailChange = {}, onPasswordChange = {},
             onRegistrar = {}, onRegistrarOtro = {}
         )
     }
@@ -237,7 +251,7 @@ private fun ExitoPreview() {
             state = RegistroState(
                 registroExitoso = RegistroResponse(1, "Ana", "ana@ufps.edu.co", "Usuario registrado correctamente")
             ),
-            onNombreChange = {}, onEmailChange = {}, onPasswordChange = {},
+            onServidorChange = {}, onNombreChange = {}, onEmailChange = {}, onPasswordChange = {},
             onRegistrar = {}, onRegistrarOtro = {}
         )
     }

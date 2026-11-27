@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 9+ bloquea HTTP sin cifrar. Se permite SOLO hacia el emulador local. -->
+<!-- Android 9+ bloquea HTTP sin cifrar. Para la demo se permite HTTP porque la IP del backend
+     cambia segun el computador (emulador 10.0.2.2 o IP del PC). No usar asi en produccion. -->
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">10.0.2.2</domain>
-    </domain-config>
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>

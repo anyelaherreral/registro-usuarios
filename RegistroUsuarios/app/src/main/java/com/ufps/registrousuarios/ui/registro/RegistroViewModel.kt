@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RegistroState(
+    /** IP o URL del backend. En emulador 10.0.2.2; en celular, la IP del PC. */
+    val servidor: String = "10.0.2.2",
     val nombre: String = "",
     val email: String = "",
     val password: String = "",
@@ -30,6 +32,8 @@ class RegistroViewModel(
 
     private val _state = MutableStateFlow(RegistroState())
     val state: StateFlow<RegistroState> = _state.asStateFlow()
+
+    fun onServidorChange(value: String) = _state.update { it.copy(servidor = value, error = null) }
 
     fun onNombreChange(value: String) = _state.update {
         it.copy(nombre = value, erroresCampo = it.erroresCampo - "nombre", error = null)
@@ -50,13 +54,22 @@ class RegistroViewModel(
 
         viewModelScope.launch {
             val request = RegistroRequest(actual.nombre.trim(), actual.email.trim(), actual.password)
-            val resultado = repository.registrar(request)
+            val resultado = repository.registrar(urlBase(actual.servidor), request)
             _state.update { aplicar(it, resultado) }
         }
     }
 
     fun registrarOtro() {
-        _state.value = RegistroState()
+        _state.value = RegistroState(servidor = _state.value.servidor)
+    }
+
+    /** "192.168.1.5" -> "http://192.168.1.5:8080/"; acepta tambien puerto o URL completa. */
+    private fun urlBase(entrada: String): String {
+        var url = entrada.trim().trimEnd('/')
+        if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://$url"
+        val host = url.substringAfter("://")
+        if (':' !in host) url += ":8080"
+        return "$url/"
     }
 
     private fun aplicar(state: RegistroState, resultado: ResultadoRegistro): RegistroState {
@@ -70,8 +83,10 @@ class RegistroViewModel(
             is ResultadoRegistro.EmailDuplicado -> base.copy(error = resultado.mensaje)
             is ResultadoRegistro.ErrorServidor ->
                 base.copy(error = "Error del servidor (codigo ${resultado.codigo})")
+            ResultadoRegistro.ServidorInvalido ->
+                base.copy(error = "La direccion del servidor no es valida. Ejemplo: 192.168.1.5")
             ResultadoRegistro.SinConexion ->
-                base.copy(error = "No se pudo conectar con el servidor. Verifica que el backend este encendido.")
+                base.copy(error = "No se pudo conectar con ${state.servidor}. Verifica que el backend este encendido y que la direccion sea la correcta.")
         }
     }
 }
