@@ -109,7 +109,7 @@ private fun Formulario(
         value = state.servidor,
         onValueChange = onServidorChange,
         label = { Text("Servidor (IP del backend)") },
-        supportingText = { Text("Emulador: 10.0.2.2 · Celular: IP del PC con el backend") },
+        supportingText = { Text("Emulador: 10.0.2.2 · Celular: IP del PC o URL https de la nube") },
         singleLine = true,
         enabled = !state.isLoading,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),

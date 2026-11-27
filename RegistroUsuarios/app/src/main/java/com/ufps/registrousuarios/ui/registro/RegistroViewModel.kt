@@ -63,13 +63,16 @@ class RegistroViewModel(
         _state.value = RegistroState(servidor = _state.value.servidor)
     }
 
-    /** "192.168.1.5" -> "http://192.168.1.5:8080/"; acepta tambien puerto o URL completa. */
+    /**
+     * "192.168.1.5" -> "http://192.168.1.5:8080/" (IP local, puerto por defecto del backend).
+     * Una URL con http:// o https:// (por ejemplo la de la nube) se usa tal cual.
+     */
     private fun urlBase(entrada: String): String {
-        var url = entrada.trim().trimEnd('/')
-        if (!url.startsWith("http://") && !url.startsWith("https://")) url = "http://$url"
-        val host = url.substringAfter("://")
-        if (':' !in host) url += ":8080"
-        return "$url/"
+        val texto = entrada.trim().trimEnd('/')
+        val conEsquema = texto.startsWith("http://") || texto.startsWith("https://")
+        val url = if (conEsquema) texto else "http://$texto"
+        val sinPuerto = !conEsquema && ':' !in texto
+        return (if (sinPuerto) "$url:8080" else url) + "/"
     }
 
     private fun aplicar(state: RegistroState, resultado: ResultadoRegistro): RegistroState {

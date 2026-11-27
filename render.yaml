@@ -1,0 +1,22 @@
+# Render Blueprint: backend + PostgreSQL gratis. Ver DEPLOY.md
+services:
+  - type: web
+    name: registro-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    envVars:
+      - key: DB_HOST
+        fromDatabase: { name: registro-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: registro-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: registro-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: registro-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: registro-db, property: password }
+
+databases:
+  - name: registro-db
+    plan: free
