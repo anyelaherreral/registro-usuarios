@@ -12,7 +12,12 @@ Ya esta hecho en `RegistroUsuarios/`:
 - URL base `http://10.0.2.2:8080/` (el PC visto desde el emulador).
 - Permiso `INTERNET` y `network_security_config.xml` (HTTP solo hacia `10.0.2.2`).
 
-## Pasos
+## Compilar sin Android Studio (GitHub Actions)
+El workflow `.github/workflows/android.yml` compila la app en cada push. En GitHub: pestana **Actions** >
+ultima ejecucion > si sale verde, la app compila. En **Artifacts** se descarga `registro-usuarios-debug-apk`
+(el APK, que se puede instalar en un celular; ver la nota de IP mas abajo).
+
+## Pasos (solo si se usa Android Studio)
 1. Clonar el repositorio: `git clone <URL-del-repositorio>`
 2. En Android Studio, **Open** y elegir la carpeta `RegistroUsuarios` (no la raiz del repositorio).
    `local.properties` se genera en cada computador y no se sube.
