@@ -1,0 +1,17 @@
+# Backend
+target/
+# Android
+**/build/
+.gradle/
+.kotlin/
+.idea/
+*.iml
+local.properties
+.cxx/
+captures/
+# Otros
+.vscode/
+.env
+.DS_Store
+# Carpeta antigua con fragmentos sueltos (el proyecto completo es RegistroUsuarios/)
+/android/
